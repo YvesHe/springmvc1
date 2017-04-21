@@ -1,0 +1,1 @@
+springmvc.xml 是springmvc的配置文件.(由于是springmvc是spring的一个模块,所以就不要特定的整合包了.)

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+	<!-- 映射处理器,处理器适配器,视图解析器的配置没有顺序 -->
+
+
+
+	<!-- 配置Handler(程序员编写): 可知/test1.action 和 /queryItems1.action 都是访问这一个handler(ItemsController1),因为多个映射器的结果 -->
+	<bean id="yves1" name="/test1.action" class="cn.com.yves.controller.ItemsController1"></bean>
+	<bean id="yves2" class="cn.com.yves.controller.ItemsController2"></bean>
+
+
+	<!-- 配置处理器映射器 ,注意处理器映射器可以配置多个,不冲突(返回一个执行链) -->
+	<!-- 第一个映射处理器:BeanNameUrlHandlerMapping -->
+	<bean
+		class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+	</bean>
+	<!-- 第二个映射处理器:SimpleUrlHandlerMapping -->
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<!-- 这中方式可以集中配置url对应的handler,但是还是无法做到一个类中有多个url映射到不同的方法上 -->
+			<props>
+				<!-- 对itemsController1进行url映射，url是/queryItems1.action根据prop中的值查找id值相等的bean来处理 -->
+				<prop key="/queryItems1.action">yves1</prop>
+				<prop key="/queryItems2.action">yves2</prop>
+			</props>
+		</property>
+	</bean>
+
+
+
+	<!-- 配置处理器适配器(从这里调用程序员编写的handler): 意味着程序员编写的Handler要实现SimpleControllerHandlerAdapter中supports()方法判断的接口 
+		Controller -->
+	<bean
+		class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"></bean>
+	<!-- 配置第二个适配器HttpRequestHandlerAdapter,原理与SimpleControllerHandlerAdapter一致 ,要求实现方法supports()中的判断接口HttpRequestHandler-->
+	<bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"></bean>
+
+
+	<!-- 配置视图解析器 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"></bean>
+
+
+</beans>
